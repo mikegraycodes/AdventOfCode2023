@@ -24,41 +24,24 @@ namespace Day2
 
             result.Should().Be(expectedResult);
         }
-        
+
 
         private int Part1Execute(string fileName)
         {
             var lines = File.ReadAllLines(fileName);
 
-            List<int> ints = new();
-
-
-            foreach (var line in lines)
-            {
-                bool valid = true;
-                var game = new Game(line);
-
-                foreach (var set in game.Sets)
-                {
-                    if (set.Entries.Where(x => x.Colour.Contains("red"))
-                            .Sum(x => x.Number) > 12
-                        || set.Entries.Where(x => x.Colour.Contains("green"))
-                            .Sum(x => x.Number) > 13
-                        || set.Entries.Where(x => x.Colour.Contains("blue"))
-                            .Sum(x => x.Number) > 14)
+            return lines.Select(line => new Game(line))
+                    .Select(game => new
                     {
-                        valid = false;
-                        break;
-                    }
-                }
-
-                if (valid)
-                {
-                    ints.Add(game.Id);
-                }
-            }
-
-            return ints.Sum();
+                        game,
+                        valid = game.Sets.All(set =>
+                            set.Entries.Where(x => x.Colour.Contains("red")).Sum(x => x.Number) <= 12 &&
+                            set.Entries.Where(x => x.Colour.Contains("green")).Sum(x => x.Number) <= 13 &&
+                            set.Entries.Where(x => x.Colour.Contains("blue")).Sum(x => x.Number) <= 14)
+                    })
+                    .Where(@t => @t.valid)
+                    .Select(@t => @t.game.Id)
+                .Sum();
         }
 
         private int Part2Execute(string fileName)
@@ -82,11 +65,7 @@ namespace Day2
                     minimumBlue.Add(set.Entries.Where(x => x.Colour.Contains("blue")).Sum(x => x.Number));
                 }
 
-                var minRed = minimumReds.Max();
-                var minGreen = minimumGreen.Max();
-                var minBlue = minimumBlue.Max();
-
-                ints.Add(minRed * minGreen * minBlue);
+                ints.Add(minimumReds.Max() * minimumGreen.Max() * minimumBlue.Max());
             }
 
             return ints.Sum();

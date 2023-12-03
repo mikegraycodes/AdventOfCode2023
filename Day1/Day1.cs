@@ -52,9 +52,6 @@ namespace Day1Tests
 
             foreach (var line in lines)
             {
-                line.Trim();
-                //find first digit 
-
                 var first = line.ToCharArray().FirstOrDefault(char.IsNumber);
                 var firstIndex = -1;
                 if (first != default)
@@ -92,10 +89,10 @@ namespace Day1Tests
             return numbers.Sum();
         }
 
-        (string, int) FindFirstWord(string line)
+        private (string, int) FindFirstWord(string line)
         {
             var list = new List<(string, int)>();
-            foreach (var wordNumber in wordNumbers)
+            foreach (var wordNumber in WordNumbers)
             {
                 var indexOf = line.IndexOf(wordNumber, StringComparison.Ordinal);
                 if (indexOf != -1)
@@ -108,10 +105,10 @@ namespace Day1Tests
             return list.FirstOrDefault(x => x.Item2 != -1);
         }
 
-        (string, int) FindLastWord(string line)
+        private (string, int) FindLastWord(string line)
         {
             var list = new List<(string, int)>();
-            foreach (var wordNumber in wordNumbers)
+            foreach (var wordNumber in WordNumbers)
             {
                 var lastIndexOf = line.LastIndexOf(wordNumber, StringComparison.Ordinal);
                 if (lastIndexOf != -1)
@@ -123,7 +120,7 @@ namespace Day1Tests
             return list.FirstOrDefault(x => x.Item2 != -1);
         }
 
-        List<string> wordNumbers = new()
+        private IReadOnlyList<string> WordNumbers => new List<string>()
         {
             "one",
             "two",
@@ -136,7 +133,7 @@ namespace Day1Tests
             "nine"
         };
 
-        char ToCharNumber(string number) => number switch
+        private char ToCharNumber(string number) => number switch
         {
             "one" => '1',
             "two" => '2',
