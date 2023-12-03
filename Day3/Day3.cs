@@ -26,13 +26,7 @@ namespace Day3
 
             foreach (var symbol in symbols)
             {
-                foreach (var part in partNumbers)
-                {
-                    if (IsAdjacent(symbol, part))
-                    {
-                        actualParts.Add(part);
-                    }
-                }
+                actualParts.AddRange(partNumbers.Where(part => IsAdjacent(symbol, part)));
             }
 
 
@@ -58,34 +52,28 @@ namespace Day3
 
             var partNumbers = LocatePartNumbers(lines);
 
-            var actualParts = new List<PartNumber>();
-
             var symbolToPartNumber = new Dictionary<Symbol, List<PartNumber>>();
 
             foreach (var symbol in symbols)
             {
                 symbolToPartNumber.Add(symbol, new());
-                foreach (var part in partNumbers)
+
+                foreach (var part in partNumbers.Where(part => IsAdjacent(symbol, part)))
                 {
-                    if (IsAdjacent(symbol, part))
-                    {
-                        symbolToPartNumber[symbol].Add(part);
-                    }
+                    symbolToPartNumber[symbol].Add(part);
                 }
             }
 
-            var ratios = symbolToPartNumber.Where(x => x.Value.Count == 2);
-
-            var values = ratios.Select(x => (x.Value[0].Number * x.Value[1].Number));
-
-            return values.Sum();
+            return symbolToPartNumber.Where(x => x.Value.Count == 2)
+                .Select(x => (x.Value[0].Number * x.Value[1].Number))
+                .Sum();
         }
 
 
         private bool IsAdjacent(Symbol symbol, PartNumber partNumber)
         {
-            bool result = false;
-            for (int i = 0; i < partNumber.Length; i++)
+            var result = false;
+            for (var i = 0; i < partNumber.Length; i++)
             {
                 result = Math.Abs(symbol.X - (partNumber.X + i)) <= 1 && Math.Abs(symbol.Y - partNumber.Y) <= 1;
 
@@ -98,12 +86,12 @@ namespace Day3
         private List<Symbol> LocateSymbols(string[] lines)
         {
             List<Symbol> symbols = new();
-            for (var i = 0; i < lines.Length; i++)
+            for (var y = 0; y < lines.Length; y++)
             {
-                for (var j = 0; j < lines[i].Length; j++)
-                    if (!char.IsNumber(lines[i][j]) && lines[i][j] != '.')
+                for (var x = 0; x < lines[y].Length; x++)
+                    if (!char.IsNumber(lines[y][x]) && lines[y][x] != '.')
                     {
-                        symbols.Add(new Symbol(lines[i][j], j, i));
+                        symbols.Add(new Symbol(lines[y][x], x, y));
                     }
             }
             return symbols;
@@ -112,45 +100,34 @@ namespace Day3
         private List<PartNumber> LocatePartNumbers(string[] lines)
         {
             List<PartNumber> parts = new();
-            for (var i = 0; i < lines.Length; i++)
+            for (var y = 0; y < lines.Length; y++)
             {
-                for (var j = 0; j < lines[i].Length; j++)
-                    if (char.IsNumber(lines[i][j]))
+                for (var x = 0; x < lines[y].Length; x++)
+                    if (char.IsNumber(lines[y][x]))
                     {
-                        var lengthOfNumber = LengthOfNumber(lines[i], j);
+                        var lengthOfNumber = LengthOfNumber(lines[y], x);
 
-                        char[] number = new char[lengthOfNumber];
+                        var number = new char[lengthOfNumber];
 
                         for (var length = 0; length < lengthOfNumber; length++)
                         {
-                            number[length] = lines[i][j + length];
+                            number[length] = lines[y][x + length];
                         }
-                        parts.Add(new PartNumber(int.Parse(new string(number)), j, i, lengthOfNumber));
+                        parts.Add(new PartNumber(int.Parse(new string(number)), x, y, lengthOfNumber));
 
-                        j = j + lengthOfNumber;
+                        x += lengthOfNumber;
                     }
             }
             return parts;
         }
 
-        private int LengthOfNumber(string line, int j)
+        private int LengthOfNumber(string line, int x)
         {
-            int length = 1;
-
-            try
+            var length = 1;
+            while (x + length < line.Length && char.IsNumber(line[x + length]))
             {
-                while (char.IsNumber(line[j + length]) && j + length <= line.Length - 1)
-                {
-                    length++;
-                }
+                length++;
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                //throw;
-            }
-
-
             return length;
         }
 
